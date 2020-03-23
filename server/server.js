@@ -7,6 +7,7 @@ const dataDir = './dist/data'
 const confirmedFile = 'confirmed.csv'
 const data = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv'
 
+//TODO: put this somewhere else
 function getLatestData() {
     console.log(new Date().toISOString(), "Getting latest data");
     superagent.get(data)
@@ -18,11 +19,12 @@ function getLatestData() {
         console.log(err);
     })
 }
-// getLatestData();
+//TODO: put this somewhere else
 setInterval(() => {
     getLatestData();
 }, 1000 * 60 * 5)
 
+//TODO: break out some of these anonymous functions
 app.get('/api/data/:country', (req, res) => {
     let results = []
     fs.createReadStream(`${dataDir}/confirmed.csv`)

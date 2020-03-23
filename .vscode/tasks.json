@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+        "label": "express",
+        "command": "npm run express",
+        "type": "shell",
+        "isBackground": true,
+        "presentation": {
+            "echo": true,
+            "reveal": "never",
+            "focus": false,
+            "panel": "new",
+            "showReuseMessage": false,
+            "clear": false
+        }
+    },
+    {
+        "label": "devserver",
+        "command": "npm run webpack-dev-server",
+        "type": "shell",
+        "isBackground": true,
+        "presentation": {
+            "echo": true,
+            "reveal": "never",
+            "focus": false,
+            "panel": "new",
+            "showReuseMessage": false,
+            "clear": false,
+        }
+    },
+    {
+        "label": "dev",
+        "isBackground": true,
+        "dependsOn":[
+            "express",
+            "devserver"
+        ]
+    }
+]
+}

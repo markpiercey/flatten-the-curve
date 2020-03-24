@@ -30,6 +30,9 @@ export default class Chart extends React.Component {
                 y: {
                     label: 'Number of Confirmed Cases'
                 }
+            },
+            legend: {
+                position: 'right'
             }
         })
     }

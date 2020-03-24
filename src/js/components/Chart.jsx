@@ -101,7 +101,7 @@ export default class Chart extends React.Component {
                 x
             });
 
-            this.renderChart(this.state.x, this.state.data);
+            this.renderChart();
         });
     }
 
@@ -116,7 +116,7 @@ export default class Chart extends React.Component {
         return data.map(province => {
             const dropped = _.drop(_.values(province), 4);
 
-            const concatted = _.concat(
+            return _.concat(
                 [
                     province["Province/State"].length > 0
                         ? province["Province/State"]
@@ -124,20 +124,17 @@ export default class Chart extends React.Component {
                 ],
                 this.validateValues(dropped)
             );
-
-            return concatted;
         });
     }
 
     getXLabels(data) {
         const keys = _.keys(data);
         const filteredKeys = keys.filter(x => !_.includes(excludedFields, x));
-        const x = _.concat(
+
+        return _.concat(
             ["x"],
             filteredKeys.map(x => moment(x, "MM/DD/YY").toDate())
         );
-
-        return x;
     }
 
     onCompareChange(event) {

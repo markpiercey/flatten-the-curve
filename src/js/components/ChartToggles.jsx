@@ -10,6 +10,7 @@ export default class ChartToggles extends React.Component {
                         name="total" 
                         id="total" 
                         value="total"
+                        checked={true}
                         onClick={this.props.onChartModeChange}>
                     </input> Totals
                 </label>

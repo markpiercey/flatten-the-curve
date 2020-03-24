@@ -5,7 +5,6 @@ import superagent from 'superagent'
 import _ from 'lodash'
 import moment from 'moment'
 
-
 export default class Chart extends React.Component {  
     //TODO: parameterize some of this stuff to make <Chart> reusable-ish
     renderChart(timeseries) {
@@ -53,8 +52,6 @@ export default class Chart extends React.Component {
                 </div>                  
                 <div className="chart"></div>
             </div>
-        
-
         )
     }
 }

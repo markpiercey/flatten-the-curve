@@ -18,7 +18,7 @@ const PER_CAPITA_FACTOR = 100000;
 function getLatestData() {
     console.log(new Date().toISOString(), "Getting latest data");
     superagent.get(data)
-    .then(res => {     
+    .then(res => {
         fs.writeFile(`${dataDir}/confirmed.csv`, res.text, ()=> {
             console.log(new Date().toISOString(), "Latest data loaded");
         })
@@ -51,7 +51,7 @@ function carryForwardMissingTotals(values) {
 function toChartLine(mode, timeSeriesRow) {
     let provinceName = timeSeriesRow['Province/State'];
     let dataPoints = carryForwardMissingTotals(_.drop(_.values(timeSeriesRow), 4));
-    
+
     if (mode && mode === 'percapita') {
         dataPoints = toPerCapita(provinceName, dataPoints);
     }
@@ -62,12 +62,16 @@ function toChartLine(mode, timeSeriesRow) {
 function johnsHopkinsDataMapper(results, countryFilter, mode) {
     let countryResults = results.filter(countryFilter || (x => true));
     let data = countryResults.map(_.partial(toChartLine, mode));
-    let x = _.concat(_.keys(countryResults[0]).filter(x => !_.includes(NON_TIMESERIES_FIELDS, x)).map(x=> moment(x, 'MM/DD/YY').toDate()))
+    let x = _.concat(
+        _.keys(countryResults[0])
+            .filter(x => !_.includes(NON_TIMESERIES_FIELDS, x))
+            .map(x => moment(x, "MM/DD/YY").toDate())
+    );
 
     return {
         x: x,
         data: data
-    }
+    };
 }
 
 function countryEquals(country) {
@@ -76,6 +80,25 @@ function countryEquals(country) {
         record['Country/Region'].toLowerCase() === country.toLowerCase();
     }
 }
+
+
+/**
+ * Get list of countries available in data
+ */
+app.get('/api/data/countries', (req, res) => {
+    let results = []
+    fs.createReadStream(`${dataDir}/confirmed.csv`)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', () => {
+            let countries = results.map(entry => entry["Country/Region"]);
+
+            // Make entries unique
+            countries = countries.filter((item, i, ar) => ar.indexOf(item) === i );
+
+            res.send(countries);
+    });
+});
 
 //TODO: move
 function readCsv(path, cb) {
@@ -89,9 +112,21 @@ function readCsv(path, cb) {
 app.get('/api/data/:country', (req, res) => {
     let results = []
     readCsv(`${dataDir}/confirmed.csv`, results => {
-        res.send(johnsHopkinsDataMapper(results, countryEquals(req.params.country), req.query.mode));
+        res.send(
+            johnsHopkinsDataMapper(
+                results,
+                countryEquals(req.params.country),
+                req.query.mode
+            )
+        );
+        // .on('end', () => {
+        //     const countryData = results.filter(record => {
+        //         return countries.indexOf(record["Country/Region"].toLowerCase()) >= 0;
+        //     });
+
+        //     res.send(countryData);
     });
-})
+});
 
 app.use(express.static('dist'));
 getLatestData()

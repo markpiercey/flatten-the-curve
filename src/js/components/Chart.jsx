@@ -1,26 +1,22 @@
 import React from 'react';
+import ChartToggles from './ChartToggles'
 import c3 from 'c3'
 import superagent from 'superagent'
 import _ from 'lodash'
 import moment from 'moment'
 
-const excludedFields = ['Lat', 'Long', 'Province/State', 'Country/Region'];
 
 export default class Chart extends React.Component {  
-    validateValues(values) {
-        return values.map((value, index, array) => {
-            return index > 1 && array[index-1] > value
-            ? array[index - 1]
-            : value
-        })
-    }
+    //TODO: parameterize some of this stuff to make <Chart> reusable-ish
+    renderChart(timeseries) {
+        let dates = timeseries.x.map(date => new Date(date));
+        let data = _.concat([_.concat('x', dates)], timeseries.data)
 
-    renderChart(x, data) {
         c3.generate({
             bindto: '.chart',
             data: {
                 x: 'x',
-                columns: _.concat([x], data)
+                columns: data
             },
             axis: {
                 x: {
@@ -39,13 +35,26 @@ export default class Chart extends React.Component {
 
     componentDidMount() {
         superagent.get('/api/data/canada').then((res) => {
-            let data = res.body.map(province => _.concat([province['Province/State']], this.validateValues(_.drop(_.values(province), 4))))
-            let x = _.concat(['x'], _.keys(res.body[0]).filter(x => !_.includes(excludedFields, x)).map(x=> moment(x, 'MM/DD/YY').toDate()))
-            this.renderChart(x, data)
+            this.renderChart(res.body)
+        })
+    }
+
+    onChartModeChange(e) {
+        superagent.get(`/api/data/canada?mode=${e.target.value}`).then((res) => {
+            this.renderChart(res.body)
         })
     }
 
     render() {
-        return <div className="chart"></div>
+        return (
+            <div>  
+                <div className="d-flex justify-content-around">
+                    <ChartToggles onChartModeChange={this.onChartModeChange.bind(this)}></ChartToggles>
+                </div>                  
+                <div className="chart"></div>
+            </div>
+        
+
+        )
     }
 }

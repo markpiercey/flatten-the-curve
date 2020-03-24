@@ -1,8 +1,8 @@
 # Flatten the curve
 
-This is a work-in-progress, canada-centric covid-19 dashboard.
+This is a work-in-progress, canada-centric COVID-19 dashboard.
 
-## Developer Enviroment Setup:
+## Developer Environment Setup:
 
 ### Windows Install
 1. Install Node JS [12.16.1 LTS](https://nodejs.org/en/)

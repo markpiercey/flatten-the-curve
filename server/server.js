@@ -42,7 +42,7 @@ function toPerCapita(province, values) {
 
 function carryForwardMissingTotals(values) {
     return values.map((value, index, array) => {
-        return index > 1 && array[index-1] > value
+        return index > 1 && Number(array[index-1]) > Number(value)
         ? array[index - 1]
         : value
     })

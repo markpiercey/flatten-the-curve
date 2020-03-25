@@ -93,7 +93,7 @@ export default class Chart extends React.Component {
         timeseries: res.body
       });
 
-      this.renderChart(); // TODO: maybe move this out? separation of concerns, etc.
+      this.renderChart();
     });
   }
 
@@ -117,8 +117,9 @@ export default class Chart extends React.Component {
           ></ChartToggles>
         </div>
         <div className="chart"></div>
-        <p>Compare to another country:</p>
-        <select
+        {/* Hide compare-to country until State/Province totalling works */}
+        {/* <p>Compare to another country:</p> */}
+        {/* <select
           name="compareToCountry"
           id="compareToCountry"
           onChange={this.onCompareChange}
@@ -126,7 +127,7 @@ export default class Chart extends React.Component {
           {this.state.countries.map(country => (
             <option key={country}>{country}</option>
           ))}
-        </select>
+        </select> */}
       </div>
     );
   }

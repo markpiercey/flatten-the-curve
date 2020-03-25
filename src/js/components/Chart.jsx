@@ -21,6 +21,16 @@ export default class Chart extends React.Component {
                 x: {
                     label: 'Date',
                     type: 'timeseries',
+                    tick: {
+                        format: function(x) {
+                            return moment(x).format('MMM DD YYYY')
+                        },
+                        culling: {
+                            max: 6
+                        },
+                        rotate: 45
+                        
+                    }
                 },
                 y: {
                     label: 'Number of Confirmed Cases'

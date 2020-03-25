@@ -74,11 +74,14 @@ function johnsHopkinsDataMapper(results, countryFilter, mode) {
     };
 }
 
-function countryEquals(country) {
-    return function(record) {
-        return !_.includes(NON_PROVINCES, record['Province/State']) &&
-        record['Country/Region'].toLowerCase() === country.toLowerCase();
-    }
+function countryEquals(countries) {
+  return function(record) {
+      countries = countries.map(country => country.toLowerCase());
+    return (
+      !_.includes(NON_PROVINCES, record["Province/State"]) &&
+      countries.indexOf(record["Country/Region"].toLowerCase()) >= 0
+    );
+  };
 }
 
 
@@ -109,22 +112,17 @@ function readCsv(path, cb) {
         .on('end', () => cb(results));
 }
 
-app.get('/api/data/:country', (req, res) => {
-    let results = []
+app.get('/api/data/:countries', (req, res) => {
+    const countries = req.params.countries.split(",");
+
     readCsv(`${dataDir}/confirmed.csv`, results => {
         res.send(
             johnsHopkinsDataMapper(
                 results,
-                countryEquals(req.params.country),
+                countryEquals(countries),
                 req.query.mode
             )
         );
-        // .on('end', () => {
-        //     const countryData = results.filter(record => {
-        //         return countries.indexOf(record["Country/Region"].toLowerCase()) >= 0;
-        //     });
-
-        //     res.send(countryData);
     });
 });
 

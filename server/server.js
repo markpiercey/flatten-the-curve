@@ -11,7 +11,7 @@ const moment = require('moment');
 const populations = require('./populations.json')
 
 const NON_TIMESERIES_FIELDS = ['Lat', 'Long', 'Province/State', 'Country/Region'];
-const NON_PROVINCES = ['Diamond Princess', 'Grand Princess']
+const NON_PROVINCES = ['Diamond Princess', 'Grand Princess', 'Recovered']
 const PER_CAPITA_FACTOR = 100000;
 
 //TODO: put this somewhere else and come up with a way of getting multiple data sources

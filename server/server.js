@@ -113,7 +113,6 @@ function johnsHopkinsDataMapper(results, countryFilter, mode, sumProvinceState =
     let x = _.concat(
         _.keys(countryResults[0])
             .filter(x => !_.includes(NON_TIMESERIES_FIELDS, x))
-            .map(x => moment(x, "MM/DD/YY").toDate())
     );
 
     return {

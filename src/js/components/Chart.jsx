@@ -114,12 +114,12 @@ export default class Chart extends React.Component {
         <div className="d-flex justify-content-around">
           <ChartToggles
             onChartModeChange={this.onChartModeChange}
+            disabled={this.state.compareToCountry !== ""}
           ></ChartToggles>
         </div>
         <div className="chart"></div>
-        {/* Hide compare-to country until State/Province totalling works */}
-        {/* <p>Compare to another country:</p> */}
-        {/* <select
+        <p>Compare to another country:</p>
+        <select
           name="compareToCountry"
           id="compareToCountry"
           onChange={this.onCompareChange}
@@ -127,7 +127,7 @@ export default class Chart extends React.Component {
           {this.state.countries.map(country => (
             <option key={country}>{country}</option>
           ))}
-        </select> */}
+        </select>
       </div>
     );
   }

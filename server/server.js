@@ -53,8 +53,13 @@ function carryForwardMissingTotals(values) {
     })
 }
 
-function toChartLine(mode, timeSeriesRow) {
-    let dataLabel = timeSeriesRow["Province/State"] === ""
+/**
+ * @param {string} mode total or percapita
+ * @param {bool} sumProvinceState if true, province/state should be summed and label should be country name
+ * @param {array} timeSeriesRow
+ */
+function toChartLine(mode, sumProvinceState, timeSeriesRow) {
+    let dataLabel = timeSeriesRow["Province/State"] === "" || sumProvinceState
         ? timeSeriesRow["Country/Region"]
         : timeSeriesRow["Province/State"];
 
@@ -69,10 +74,42 @@ function toChartLine(mode, timeSeriesRow) {
     return _.concat([dataLabel], dataPoints);
 }
 
-function johnsHopkinsDataMapper(results, countryFilter, mode) {
+/**
+ * Sum columns in a 2D array.
+ * NOTE: will convert entries to int
+ * (I felt this was a safe assumption since population numbers tend to be discrete ;) )
+ *
+ * @param {array} data Can be 2D array of numbers or strings representing numbers.
+ * @returns {array} 1D array w/ summed columns
+ */
+function sumColumns(data) {
+    return data.reduce((r, a) => a.map((b, i) => (parseInt(r[i] || 0)) + parseInt(b)), []);
+}
+
+/**
+ * @param {array} results
+ * @param {function} countryFilter
+ * @param {string} mode total or percapita
+ * @param {bool} sumProvinceState if true, sum the values for province/state per country
+ */
+function johnsHopkinsDataMapper(results, countryFilter, mode, sumProvinceState = false) {
     let countryResults = results.filter(countryFilter || (x => true));
 
-    let data = countryResults.map(_.partial(toChartLine, mode));
+    let data = countryResults.map(_.partial(toChartLine, mode, sumProvinceState));
+
+    if (sumProvinceState) {
+        let canData = data.filter(i => i[0].toLowerCase() === "canada").map(i => i.slice(1));
+        let otherData = data.filter(i => i[0].toLowerCase() !== "canada");
+
+        let otherCountry = otherData[0][0];
+        otherData = otherData.map(i => i.slice(1));
+
+        let canSum = ["Canada", ...sumColumns(canData)];
+        let otherSum = [otherCountry, ...sumColumns(otherData)];
+
+        data = [canSum, otherSum];
+    }
+
     let x = _.concat(
         _.keys(countryResults[0])
             .filter(x => !_.includes(NON_TIMESERIES_FIELDS, x))
@@ -95,6 +132,15 @@ function countryEquals(countries) {
     };
 }
 
+//TODO: move
+function readCsv(path, cb) {
+    let results = []
+    fs.createReadStream(path)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', () => cb(results));
+}
+
 /**
  * Get list of countries available in data
  */
@@ -115,24 +161,16 @@ app.get("/api/data/countries", (req, res) => {
         });
 });
 
-//TODO: move
-function readCsv(path, cb) {
-    let results = []
-    fs.createReadStream(path)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', () => cb(results));
-}
-
 app.get("/api/data/:countries", (req, res) => {
     const countries = req.params.countries.split(",");
 
     // Disable per capita when comparing countries until we can get population data ready for all countries
+    // TODO: when per capita works worldwide, modify following line
     const mode = countries.length > 1 ? "total" : req.query.mode;
 
     readCsv(`${dataDir}/confirmed.csv`, results => {
         res.send(
-            johnsHopkinsDataMapper(results, countryEquals(countries), mode)
+            johnsHopkinsDataMapper(results, countryEquals(countries), mode, countries.length > 1)
         );
     });
 });

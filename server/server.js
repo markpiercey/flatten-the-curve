@@ -161,8 +161,14 @@ app.get("/api/data/countries", (req, res) => {
         });
 });
 
-app.get("/api/data/:countries", (req, res) => {
-    const countries = req.params.countries.split(",");
+app.get("/api/data/:country", (req, res) => {
+    const baseCountry = req.params.country;
+    const compareToCountry = req.query.compareTo;
+    const countries = [baseCountry];
+
+    if (compareToCountry != null) {
+        countries.push(compareToCountry);
+    }
 
     // Disable per capita when comparing countries until we can get population data ready for all countries
     // TODO: when per capita works worldwide, modify following line

@@ -78,23 +78,24 @@ export default class Chart extends React.Component {
     const { compareToCountry, chartMode } = this.state;
 
     let queryString = "/api/data/canada";
+    let queryParams = {
+        mode: chartMode
+    };
 
-    // Check for compare-to country
-    queryString =
-      compareToCountry && compareToCountry.length > 0
-        ? `${queryString},${compareToCountry.trim().toLowerCase()}`
-        : queryString;
+    if (compareToCountry != "") {
+        queryParams.compareTo = this.state.compareToCountry
+    }
 
-    // Set the data mode (i.e., total vs. percapita)
-    queryString = `${queryString}?mode=${chartMode}`;
+    superagent
+        .get(queryString)
+        .query(queryParams)
+        .then(res => {
+            this.setState({
+                timeseries: res.body
+            });
 
-    superagent.get(queryString).then(res => {
-      this.setState({
-        timeseries: res.body
-      });
-
-      this.renderChart();
-    });
+            this.renderChart();
+        });
   }
 
   getCountryList() {
